@@ -1,5 +1,3 @@
-import string
-
 # All possible winner positions
 WINNER_POSITIONS = ({0, 1, 2}, {3, 4, 5}, {6, 7, 8},
                     {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
@@ -21,20 +19,24 @@ def cell_occupied(coord_x, coord_y):
     return not field[convert_coordinates(coord_x, coord_y)] == " "
 
 
-def user_input_correct():
-    input_to_check = user_input.split()
-    if len(input_to_check) != 2 \
-            or string.digits.find(input_to_check[0]) == -1 \
-            or string.digits.find(input_to_check[1]) == -1:
+def user_input_correct(checked_input):
+    global user_x
+    global user_y
+
+    try:
+        user_x, user_y = [int(x) for x in checked_input.split()]
+    except ValueError:
         print("You should enter numbers!")
         return False
-    elif int(input_to_check[0]) > 3 or int(input_to_check[1]) > 3:
+
+    if user_x > 3 or user_y > 3 or user_x < 1 or user_y < 1:
         print("Coordinates should be from 1 to 3!")
         return False
-    elif cell_occupied(int(input_to_check[0]), int(input_to_check[1])):
+    elif cell_occupied(user_x, user_y):
         print("This cell is occupied! Choose another one!")
         return False
 
+    # All seems OK
     return True
 
 
@@ -52,7 +54,6 @@ def is_winner(char):
 
 
 def check_winner():
-
     global winner
     if is_winner(CHAR_X):
         winner = CHAR_X
@@ -92,18 +93,21 @@ def print_field():
 
 # Initial parameters
 winner = None
-current_turn = CHAR_X
-turns_to_finish = 9
+current_turn = CHAR_X  # X starts first
+user_x = 0
+user_y = 0
 
+# Initiate blank 3x3 field
 field = list(9 * " ")
 print_field()
 
 # Main game loop
 while not game_finished():
+
     user_input = input("Enter the coordinates:")
-    if user_input_correct():
-        user_x, user_y = user_input.split()
-        update_field(int(user_x), int(user_y), current_turn)
+
+    if user_input_correct(user_input):
+        update_field(user_x, user_y, current_turn)
         current_turn = CHAR_X if current_turn == CHAR_O else CHAR_O
         print_field()
         check_winner()
